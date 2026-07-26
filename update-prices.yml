@@ -1,0 +1,36 @@
+name: Update fuel prices
+
+on:
+  schedule:
+    # Щодня о 06:00 за Києвом (03:00 UTC, без урахування переходу на літній час)
+    - cron: "0 3 * * *"
+  workflow_dispatch: {}   # дозволяє запустити вручну кнопкою "Run workflow"
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run scraper
+        run: python scripts/scrape_prices.py
+
+      - name: Commit updated prices.json
+        run: |
+          git config user.name "fuel-price-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add prices.json
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Оновлення цін на пальне: $(date -u +'%Y-%m-%d')"
+          git push
