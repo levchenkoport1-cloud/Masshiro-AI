@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пальне.UA — 10 мереж АЗС</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --asphalt:#1b1d1f; --asphalt-2:#242629; --line:#393c3f;
+    --amber:#ff9e2c; --amber-dim:#8a5a1f; --green:#4fd68c;
+    --paper:#eae6df; --paper-dim:#a9a49b; --red:#ff6b6b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 15% 0%, #26282b 0%, var(--asphalt) 55%), var(--asphalt);
+    color:var(--paper); font-family:'Oswald',sans-serif; padding:0 0 60px;
+  }
+  header{padding:34px 20px 20px; border-bottom:3px solid var(--amber); position:relative; overflow:hidden;}
+  header::before{content:""; position:absolute; inset:0;
+    background:repeating-linear-gradient(135deg, rgba(255,158,44,.05) 0 14px, transparent 14px 28px);
+    pointer-events:none;}
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.25em;
+    color:var(--amber); text-transform:uppercase; margin-bottom:10px;}
+  h1{margin:0; font-size:clamp(28px,7vw,42px); font-weight:700; letter-spacing:-.01em; line-height:1.05;}
+  h1 span{color:var(--amber);}
+  .sub{color:var(--paper-dim); font-size:14px; max-width:580px; margin-top:10px; line-height:1.5;}
+  main{max-width:800px; margin:0 auto; padding:0 20px;}
+  .console{margin-top:26px; background:var(--asphalt-2); border:1px solid var(--line); border-radius:4px;
+    padding:16px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  #status{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--paper-dim);}
+  #status b{color:var(--green);}
+  #status.stale b{color:var(--red);}
+  .sort-row{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;}
+  .sort-btn{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.05em;
+    background:transparent; color:var(--paper-dim); border:1px solid var(--line); border-radius:20px;
+    padding:7px 14px; cursor:pointer; text-transform:uppercase;}
+  .sort-btn.active{border-color:var(--amber); color:var(--amber);}
+  .table{margin-top:16px; border:1px solid var(--line); border-radius:4px; overflow:hidden;}
+  .t-head{display:grid; grid-template-columns:2fr 1fr 1fr 1fr; background:var(--asphalt-2);
+    padding:10px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--paper-dim); border-bottom:1px solid var(--line);}
+  .t-head .num{text-align:right;}
+  .t-row{display:grid; grid-template-columns:2fr 1fr 1fr 1fr; align-items:center; padding:13px 14px;
+    border-bottom:1px solid var(--line); background:#151618;}
+  .t-row:last-child{border-bottom:none;}
+  .net{display:flex; align-items:center; gap:10px;}
+  .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--paper-dim);}
+  .net-name{font-weight:600; font-size:15px;}
+  .net-tier{display:block; font-family:'JetBrains Mono',monospace; font-size:9px;
+    color:var(--paper-dim); letter-spacing:.05em; margin-top:1px;}
+  .num{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px; text-align:right;}
+  .num.na{color:var(--paper-dim); font-weight:400;}
+  .note{margin-top:22px; font-size:13px; line-height:1.6; color:var(--paper-dim);
+    border-left:2px solid var(--amber-dim); padding-left:14px;}
+  .note b{color:var(--paper);}
+  a.raw-link{color:var(--amber); text-decoration:none;}
+  footer{max-width:800px; margin:40px auto 0; padding:20px 20px 0; border-top:1px solid var(--line);
+    font-size:12px; color:var(--paper-dim); line-height:1.6;}
+  @media (max-width:480px){
+    .t-head, .t-row{grid-template-columns:1.6fr 1fr 1fr 1fr; padding:12px 10px;}
+    .num{font-size:13px;} .net-name{font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">АЗС · 10 ПРОВІДНИХ МЕРЕЖ · АВТООНОВЛЕННЯ</div>
+  <h1>Пальне<span>.</span>UA</h1>
+  <div class="sub">Роздрібні ціни на бензин А-95, дизель і автогаз у 10 найбільших мережах АЗС України. Дані оновлюються автоматично щодня о 06:00 через GitHub Actions.</div>
+</header>
+
+<main>
+  <div class="console">
+    <div id="status">Завантаження даних…</div>
+  </div>
+
+  <div class="sort-row">
+    <button class="sort-btn active" data-sort="default">За замовчуванням</button>
+    <button class="sort-btn" data-sort="a95">Дешевше А-95</button>
+    <button class="sort-btn" data-sort="dp">Дешевше ДП</button>
+  </div>
+
+  <div class="table">
+    <div class="t-head">
+      <span>Мережа</span>
+      <span class="num">А-95</span>
+      <span class="num">ДП</span>
+      <span class="num">Газ</span>
+    </div>
+    <div id="tbody"></div>
+  </div>
+
+  <div class="note">
+    <b>Як це працює:</b> раз на добу GitHub Actions запускає <code>scripts/scrape_prices.py</code>, який заходить на сторінки кожної мережі на index.minfin.com.ua і зберігає ціни у <a class="raw-link" href="prices.json" target="_blank">prices.json</a>. Ця сторінка просто читає той файл. Якщо якась мережа показує «н/д» — значить сайт-джерело змінив верстку і селектор у скрипті потребує оновлення (див. коментарі в scrape_prices.py).
+  </div>
+</main>
+
+<footer>
+  Джерело даних: index.minfin.com.ua. Файл не звертається до жодного стороннього сервера, окрім читання власного prices.json у цьому репозиторії.
+</footer>
+
+<script>
+  const tbody = document.getElementById('tbody');
+  const status = document.getElementById('status');
+
+  fetch('prices.json?_=' + Date.now())
+    .then(r => {
+      if (!r.ok) throw new Error('prices.json ще не створено — дочекайся першого запуску Actions');
+      return r.json();
+    })
+    .then(data => {
+      const updated = new Date(data.updated_at);
+      const now = new Date();
+      const hoursOld = (now - updated) / 36e5;
+      status.innerHTML = `Останнє оновлення: <b>${updated.toLocaleString('uk-UA')}</b> · джерело: ${data.source}`;
+      if (hoursOld > 30) status.classList.add('stale');
+
+      let networks = data.networks.map(n => ({
+        ...n,
+        a95: n.a95 ?? null,
+        dp: n.dp ?? null,
+        gas: n.gas ?? null,
+      }));
+
+      function render(list){
+        tbody.innerHTML = list.map(n => `
+          <div class="t-row">
+            <div class="net">
+              <span class="dot"></span>
+              <div>
+                <span class="net-name">${n.name}</span>
+                <span class="net-tier">${n.a95 === null ? 'немає даних' : ''}</span>
+              </div>
+            </div>
+            <div class="num ${n.a95===null?'na':''}">${n.a95 !== null ? n.a95.toFixed(2) : 'н/д'}</div>
+            <div class="num ${n.dp===null?'na':''}">${n.dp !== null ? n.dp.toFixed(2) : 'н/д'}</div>
+            <div class="num ${n.gas===null?'na':''}">${n.gas !== null ? n.gas.toFixed(2) : 'н/д'}</div>
+          </div>
+        `).join('');
+      }
+      render(networks);
+
+      document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const key = btn.dataset.sort;
+          let list = [...networks];
+          if(key === 'a95') list.sort((a,b) => (a.a95 ?? 999) - (b.a95 ?? 999));
+          if(key === 'dp') list.sort((a,b) => (a.dp ?? 999) - (b.dp ?? 999));
+          render(list);
+        });
+      });
+    })
+    .catch(err => {
+      status.classList.add('stale');
+      status.innerHTML = `Помилка завантаження: <b>${err.message}</b>`;
+      tbody.innerHTML = '';
+    });
+</script>
+
+</body>
+</html>
